@@ -6,21 +6,18 @@ const port = process.env.PORT || 9000;
 const app = express();
 const server = http.createServer(app);
 
-// --- NEW PEERSERVER CONFIGURATION ---
-
-// We are telling ExpressPeerServer to *only* listen
-// for requests that come to the '/myapp' path.
+// --- PEERSERVER CONFIGURATION ---
+// Notice the 'path' option is GONE.
+// We let Express handle the path.
 const peerServer = ExpressPeerServer(server, {
-  debug: true,
-  path: '/myapp' // This MUST match your client's path
+  debug: true
 });
 
-// --- NEW EXPRESS CONNECTION ---
-
-// Instead of mounting at '/myapp', we mount the peerServer
-// at the root ('/'). The peerServer itself will now
-// handle filtering for the '/myapp' path.
-app.use('/', peerServer);
+// --- EXPRESS ROUTING ---
+// THIS IS THE KEY: We are telling Express to mount
+// the peerServer *directly* at the '/myapp' path.
+// This is the cleanest way to do it.
+app.use('/myapp', peerServer);
 
 // Simple "hello world" route to check if the server is alive
 app.get('/', (req, res) => {
@@ -30,5 +27,5 @@ app.get('/', (req, res) => {
 // --- Start The Server ---
 server.listen(port, () => {
   console.log(`Server running on port ${port}`);
-  console.log(`PeerJS is listening for requests on /myapp`);
+  console.log(`PeerJS is listening ON /myapp`);
 });

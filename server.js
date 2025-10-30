@@ -1,14 +1,14 @@
 const { PeerServer } = require('peer');
 
-// This is the important change:
-// Render tells our app which port to use via process.env.PORT
-// We use 9000 as a fallback *only* if we're running it locally.
+// This is the critical fix:
+// Render provides a port in 'process.env.PORT'
+// We use 9000 only as a backup for local testing.
 const port = process.env.PORT || 9000;
 
 const peerServer = PeerServer({
-  port: port, // Use the dynamic port from Render
+  port: port, // Use the correct port
   path: '/myapp'
 });
 
-// Update the log message to show the *actual* port
+// This log will now show the *correct* port (like 10000)
 console.log(`PeerServer running on port ${port}`);

@@ -1,23 +1,26 @@
-// NEW: Import Express and Node's built-in 'http'
 const express = require('express');
 const http = require('http');
 const { ExpressPeerServer } = require('peer');
 
-// --- Standard Express Setup ---
 const port = process.env.PORT || 9000;
 const app = express();
 const server = http.createServer(app);
 
-// --- PeerServer Configuration ---
+// --- NEW PEERSERVER CONFIGURATION ---
+
+// We are telling ExpressPeerServer to *only* listen
+// for requests that come to the '/myapp' path.
 const peerServer = ExpressPeerServer(server, {
   debug: true,
-  path: '/', // The peer server will be at the root of the path we give it
+  path: '/myapp' // This MUST match your client's path
 });
 
-// --- Connect PeerJS to Express ---
-// We tell Express to use our peerServer on the '/myapp' path.
-// This matches the 'path: /myapp' in your video.js file.
-app.use('/myapp', peerServer);
+// --- NEW EXPRESS CONNECTION ---
+
+// Instead of mounting at '/myapp', we mount the peerServer
+// at the root ('/'). The peerServer itself will now
+// handle filtering for the '/myapp' path.
+app.use('/', peerServer);
 
 // Simple "hello world" route to check if the server is alive
 app.get('/', (req, res) => {
@@ -27,5 +30,5 @@ app.get('/', (req, res) => {
 // --- Start The Server ---
 server.listen(port, () => {
   console.log(`Server running on port ${port}`);
-  console.log(`PeerJS is listening on /myapp`);
+  console.log(`PeerJS is listening for requests on /myapp`);
 });

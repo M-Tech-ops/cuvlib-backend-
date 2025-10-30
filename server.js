@@ -7,25 +7,28 @@ const app = express();
 const server = http.createServer(app);
 
 // --- PEERSERVER CONFIGURATION ---
-// Notice the 'path' option is GONE.
-// We let Express handle the path.
+// We are telling PeerServer to live at the root path '/'
 const peerServer = ExpressPeerServer(server, {
-  debug: true
+  debug: true,
+  path: '/' // Use the root path
 });
 
 // --- EXPRESS ROUTING ---
-// THIS IS THE KEY: We are telling Express to mount
-// the peerServer *directly* at the '/myapp' path.
-// This is the cleanest way to do it.
-app.use('/myapp', peerServer);
+// Mount the peerServer at the root.
+app.use('/', peerServer);
 
-// Simple "hello world" route to check if the server is alive
-app.get('/', (req, res) => {
-  res.send('Your EduSync backend is running! PeerJS is active on the /myapp path.');
+// We can add a "connection" event listener
+// to see if people are *really* connecting.
+peerServer.on('connection', (client) => {
+  console.log('PeerJS: A client has connected with ID:', client.getId());
+});
+
+peerServer.on('disconnect', (client) => {
+  console.log('PeerJS: A client has disconnected with ID:', client.getId());
 });
 
 // --- Start The Server ---
 server.listen(port, () => {
   console.log(`Server running on port ${port}`);
-  console.log(`PeerJS is listening ON /myapp`);
+  console.log(`PeerJS is listening ON /`);
 });

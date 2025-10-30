@@ -1,14 +1,31 @@
-const { PeerServer } = require('peer');
+// NEW: Import Express and Node's built-in 'http'
+const express = require('express');
+const http = require('http');
+const { ExpressPeerServer } = require('peer');
 
-// This is the critical fix:
-// Render provides a port in 'process.env.PORT'
-// We use 9000 only as a backup for local testing.
+// --- Standard Express Setup ---
 const port = process.env.PORT || 9000;
+const app = express();
+const server = http.createServer(app);
 
-const peerServer = PeerServer({
-  port: port, // Use the correct port
-  path: '/myapp'
+// --- PeerServer Configuration ---
+const peerServer = ExpressPeerServer(server, {
+  debug: true,
+  path: '/', // The peer server will be at the root of the path we give it
 });
 
-// This log will now show the *correct* port (like 10000)
-console.log(`PeerServer running on port ${port}`);
+// --- Connect PeerJS to Express ---
+// We tell Express to use our peerServer on the '/myapp' path.
+// This matches the 'path: /myapp' in your video.js file.
+app.use('/myapp', peerServer);
+
+// Simple "hello world" route to check if the server is alive
+app.get('/', (req, res) => {
+  res.send('Your EduSync backend is running! PeerJS is active on the /myapp path.');
+});
+
+// --- Start The Server ---
+server.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+  console.log(`PeerJS is listening on /myapp`);
+});
